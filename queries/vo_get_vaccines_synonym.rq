@@ -1,0 +1,22 @@
+# get all vaccines with synonyms
+
+PREFIX rdfs:  <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX vaccine: <http://purl.obolibrary.org/obo/VO_0000001>
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+
+SELECT distinct ?vaccine_ID ?name (GROUP_CONCAT(?synonym; separator="; ") AS ?synonyms)
+WHERE {
+	?entity rdfs:subClassOf* vaccine:.
+	BIND(COALESCE(IF(CONTAINS(STR(?entity), "/obo/"), STRAFTER(STR(?entity), "/obo/"), ?entity))  AS ?vaccine_ID)
+	?entity rdfs:label ?l .
+	BIND (str(?l) AS ?name) .
+  	OPTIONAL {
+		VALUES ?synonymProperty {
+      			obo:IAO_0000118
+      			obo:VO_1000000
+		}
+    		?entity ?synonymProperty ?synonym .
+  	}
+}
+GROUP BY ?vaccine_ID ?name
+ORDER BY ?vaccine_ID
