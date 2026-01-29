@@ -1,0 +1,10 @@
+#+ endpoint: https://sparql.hegroup.org/sparql
+#+ summary: find ontology graphs containing class
+
+prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+prefix owl: <http://www.w3.org/2002/07/owl#>
+SELECT distinct ?graph_uri
+WHERE {
+GRAPH ?graph_uri
+{ ?s rdf:type owl:Class }
+} LIMIT 10
