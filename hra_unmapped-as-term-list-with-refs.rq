@@ -1,0 +1,34 @@
+#+ endpoint: https://lod.humanatlas.io/sparql
+#+ summary: A list of unmapped AS terms in HRA with references if existing 
+
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ccf: <http://purl.org/ccf/>
+PREFIX ASCTB-TEMP: <https://purl.org/ccf/ASCTB-TEMP_>
+PREFIX HRA: <https://purl.humanatlas.io/collection/hra>
+ 
+SELECT 
+  ?as
+  ?as_label
+  (GROUP_CONCAT(DISTINCT ?asctb_table; separator=", ") AS ?tables)
+  (GROUP_CONCAT(DISTINCT ?record_number; separator=", ") AS ?records)
+  (GROUP_CONCAT(DISTINCT ?reference; separator=", ") AS ?references)
+FROM HRA:
+WHERE {
+  ?descriptor a ccf:CellMarkerDescriptor ;
+    ccf:primary_anatomical_structure ?as ;
+    ccf:source_record ?record .
+
+  OPTIONAL {
+    ?descriptor dct:references ?reference .
+  }
+
+  ?as rdfs:label ?as_label .
+  BIND(STRAFTER(STR(?record), '#R') as ?record_number)
+  BIND(STRBEFORE(REPLACE(STRBEFORE(STR(?descriptor), '#'), 'https://purl.humanatlas.io/asct-b/', ''), '/') as ?asctb_table) 
+  FILTER(STRSTARTS(STR(?as), STR(ASCTB-TEMP:)))
+}
+GROUP BY ?as ?as_label
+ORDER BY ?as
