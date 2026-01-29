@@ -1,4 +1,4 @@
-#+ endpoint: https://sparql.hegroup.org/sparql
+#+ endpoint: https://sparql.hegroup.org/sparql?format=csv
 #+ summary: find ontology graphs containing class
 
 prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
