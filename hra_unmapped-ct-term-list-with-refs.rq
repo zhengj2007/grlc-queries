@@ -10,14 +10,14 @@ PREFIX ASCTB-TEMP: <https://purl.org/ccf/ASCTB-TEMP_>
 PREFIX HRA: <https://purl.humanatlas.io/collection/hra>
 
 SELECT 
-  ?ct
+  ?cell_id
   ?ct_label
-  (GROUP_CONCAT(DISTINCT ?parent_ct; separator=", ") AS ?parent_cts)
+  (GROUP_CONCAT(DISTINCT ?parent_cell_id; separator=", ") AS ?parent_ct)
   (GROUP_CONCAT(DISTINCT ?parent_ct_label; separator=", ") AS ?parent_ct_labels)
-  (GROUP_CONCAT(DISTINCT ?as; separator=", ") AS ?anatomical_structures)
-  (GROUP_CONCAT(DISTINCT ?as_label; separator=", ") AS ?anatomical_structure_labels)
+  (GROUP_CONCAT(DISTINCT ?as_id; separator=", ") AS ?as_ids)
+  (GROUP_CONCAT(DISTINCT ?as_label; separator=", ") AS ?as_labels)
   (GROUP_CONCAT(DISTINCT ?asctb_table; separator=", ") AS ?asctb_tables)
-  (GROUP_CONCAT(DISTINCT ?biomarker; separator=", ") AS ?biomarkers)
+  (GROUP_CONCAT(DISTINCT ?hgnc_id; separator=", ") AS ?biomarkers)
   (GROUP_CONCAT(DISTINCT ?biomarker_label; separator=", ") AS ?biomarker_labels)
   (GROUP_CONCAT(DISTINCT ?reference; separator=", ") AS ?references)
 FROM HRA:
@@ -30,6 +30,7 @@ WHERE {
   OPTIONAL { ?descriptor dct:references ?reference . }
   OPTIONAL { 
     ?ct ccf:ccf_ct_isa ?parent_ct .
+    BIND(REPLACE(REPLACE(REPLACE(STR(?parent_ct), 'http://purl.obolibrary.org/obo/CL_', 'CL:'),'http://purl.obolibrary.org/obo/PCL_', 'PCL:'), 'https://purl.org/ccf/ASCTB-TEMP_', 'ASCTB-TEMP:') as ?parent_cell_id)
     OPTIONAL { ?parent_ct rdfs:label ?parent_ct_label . }
   }
   OPTIONAL { ?as rdfs:label ?as_label . }
@@ -37,10 +38,11 @@ WHERE {
   OPTIONAL { ?biomarker rdfs:label ?biomarker_label . }
 
   BIND(REPLACE(REPLACE(REPLACE(STR(?ct), 'http://purl.obolibrary.org/obo/CL_', 'CL:'),'http://purl.obolibrary.org/obo/PCL_', 'PCL:'), 'https://purl.org/ccf/ASCTB-TEMP_', 'ASCTB-TEMP:') as ?cell_id)
+  BIND(REPLACE(REPLACE(STR(?as), 'http://purl.obolibrary.org/obo/UBERON_', 'UBERON:'), 'https://purl.org/ccf/ASCTB-TEMP_','ASCTB-TEMP:') as ?as_id)
   BIND(REPLACE(REPLACE(STR(?biomarker), 'http://identifiers.org/hgnc/', 'HGNC:'), 'https://purl.org/ccf/ASCTB-TEMP_', 'ASCTB-TEMP:') as ?hgnc_id)
   BIND(STRBEFORE(REPLACE(STRBEFORE(STR(?descriptor), '#'), 'https://purl.humanatlas.io/asct-b/', ''), '/') as ?asctb_table)
  
   FILTER(STRSTARTS(STR(?ct), STR(ASCTB-TEMP:)))
 }
-GROUP BY ?ct ?ct_label
-ORDER BY ?ct
+GROUP BY ?cell_id ?ct_label
+ORDER BY ?cell_id
