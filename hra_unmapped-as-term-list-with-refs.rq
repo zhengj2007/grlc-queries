@@ -13,20 +13,24 @@ SELECT
   ?as
   ?as_label
   (GROUP_CONCAT(DISTINCT ?asctb_table; separator=", ") AS ?tables)
-  (GROUP_CONCAT(DISTINCT ?record_number; separator=", ") AS ?records)
   (GROUP_CONCAT(DISTINCT ?reference; separator=", ") AS ?references)
+  (GROUP_CONCAT(DISTINCT ?parent_as; separator=", ") AS ?parents_as)
+  (GROUP_CONCAT(DISTINCT ?parent_as_label; separator=", ") AS ?parents_as_label)
 FROM HRA:
 WHERE {
   ?descriptor a ccf:CellMarkerDescriptor ;
-    ccf:primary_anatomical_structure ?as ;
-    ccf:source_record ?record .
+    ccf:primary_anatomical_structure ?as .
 
   OPTIONAL {
     ?descriptor dct:references ?reference .
   }
 
+  OPTIONAL {
+    ?as ccf:ccf_as_isa ?parent_as .
+    ?parent_as rdfs:label ?parent_as_label .
+  }
+
   ?as rdfs:label ?as_label .
-  BIND(STRAFTER(STR(?record), '#R') as ?record_number)
   BIND(STRBEFORE(REPLACE(STRBEFORE(STR(?descriptor), '#'), 'https://purl.humanatlas.io/asct-b/', ''), '/') as ?asctb_table) 
   FILTER(STRSTARTS(STR(?as), STR(ASCTB-TEMP:)))
 }
