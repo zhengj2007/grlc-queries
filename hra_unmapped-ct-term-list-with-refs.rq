@@ -1,0 +1,46 @@
+#+ endpoint: https://lod.humanatlas.io/sparql
+#+ summary: A list of unmapped AS terms in HRA with references if existing 
+
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX ccf: <http://purl.org/ccf/>
+PREFIX ASCTB-TEMP: <https://purl.org/ccf/ASCTB-TEMP_>
+PREFIX HRA: <https://purl.humanatlas.io/collection/hra>
+
+SELECT 
+  ?ct
+  ?ct_label
+  (GROUP_CONCAT(DISTINCT ?parent_ct; separator=", ") AS ?parent_cts)
+  (GROUP_CONCAT(DISTINCT ?parent_ct_label; separator=", ") AS ?parent_ct_labels)
+  (GROUP_CONCAT(DISTINCT ?as; separator=", ") AS ?anatomical_structures)
+  (GROUP_CONCAT(DISTINCT ?as_label; separator=", ") AS ?anatomical_structure_labels)
+  (GROUP_CONCAT(DISTINCT ?asctb_table; separator=", ") AS ?asctb_tables)
+  (GROUP_CONCAT(DISTINCT ?biomarker; separator=", ") AS ?biomarkers)
+  (GROUP_CONCAT(DISTINCT ?biomarker_label; separator=", ") AS ?biomarker_labels)
+  (GROUP_CONCAT(DISTINCT ?reference; separator=", ") AS ?references)
+FROM HRA:
+WHERE {
+  ?descriptor a ccf:CellMarkerDescriptor ;
+    ccf:primary_anatomical_structure ?as ;
+    ccf:primary_cell_type ?ct ;
+    ccf:biomarker ?biomarker .
+
+  OPTIONAL { ?descriptor dct:references ?reference . }
+  OPTIONAL { 
+    ?ct ccf:ccf_ct_isa ?parent_ct .
+    OPTIONAL { ?parent_ct rdfs:label ?parent_ct_label . }
+  }
+  OPTIONAL { ?as rdfs:label ?as_label . }
+  OPTIONAL { ?ct rdfs:label ?ct_label . }
+  OPTIONAL { ?biomarker rdfs:label ?biomarker_label . }
+
+  BIND(REPLACE(REPLACE(REPLACE(STR(?ct), 'http://purl.obolibrary.org/obo/CL_', 'CL:'),'http://purl.obolibrary.org/obo/PCL_', 'PCL:'), 'https://purl.org/ccf/ASCTB-TEMP_', 'ASCTB-TEMP:') as ?cell_id)
+  BIND(REPLACE(REPLACE(STR(?biomarker), 'http://identifiers.org/hgnc/', 'HGNC:'), 'https://purl.org/ccf/ASCTB-TEMP_', 'ASCTB-TEMP:') as ?hgnc_id)
+  BIND(STRBEFORE(REPLACE(STRBEFORE(STR(?descriptor), '#'), 'https://purl.humanatlas.io/asct-b/', ''), '/') as ?asctb_table)
+ 
+  FILTER(STRSTARTS(STR(?ct), STR(ASCTB-TEMP:)))
+}
+GROUP BY ?ct ?ct_label
+ORDER BY ?ct
