@@ -16,7 +16,7 @@ WHERE {
     FILTER(STRSTARTS(STR(?iri), STR(ASCTB-TEMP:)))
   }
   FILTER(STRSTARTS(STR(?table), 'https://purl.humanatlas.io/asct-b'))
-  BIND(STRBEFORE(REPLACE(STR(?table), 'https://purl.humanatlas.io/asct-b/', ""), "/") AS ?asctb_table)
+  BIND(REPLACE(STR(?table), 'https://purl.humanatlas.io/asct-b/', '') AS ?asctb_table)
 }
 GROUP BY ?iri
 ORDER BY ?iri
