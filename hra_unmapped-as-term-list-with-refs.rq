@@ -26,7 +26,7 @@ WHERE {
   }
 
   OPTIONAL {
-    ?as ccf:ccf_as_isa ?parent_as .
+    ?as ccf:ccf_part_of ?parent_as .
     ?parent_as rdfs:label ?parent_as_label .
   }
 
