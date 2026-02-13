@@ -2,7 +2,7 @@
 #+ summary: search cells with associated GO molecular functions
  
 PREFIX obo: <http://purl.obolibrary.org/obo/>
-SELECT ?x ?label ?go_term ?go_label
+SELECT distinct ?x ?label ?go_term ?go_label
 from <http://purl.obolibrary.org/obo/merged/CL>
 WHERE
 {
