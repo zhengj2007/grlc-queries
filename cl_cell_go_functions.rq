@@ -1,0 +1,15 @@
+#+ endpoint: https://sparql.hegroup.org/sparql?format=csv
+#+ summary: search cells with associated GO molecular functions
+ 
+PREFIX obo: <http://purl.obolibrary.org/obo/>
+SELECT ?x ?label ?go_term ?go_label
+from <http://purl.obolibrary.org/obo/merged/CL>
+WHERE
+{
+?x rdfs:subClassOf* obo:CL_0000000 . 
+?x rdfs:subClassOf ?go_restriction .
+?go_restriction owl:onProperty obo:RO_0002215; 
+	owl:someValuesFrom ?go_term .
+?x rdfs:label ?label .
+?go_term rdfs:label ?go_label .
+}
