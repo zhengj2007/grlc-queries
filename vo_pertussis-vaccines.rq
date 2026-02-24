@@ -1,4 +1,4 @@
-#+ endpoint: https://sparql.hegroup.org/sparql?format=csv
+#+ endpoint: https://sparql.hegroup.org/sparql?format=text/html
 #+ summary: Find pertussis vaccines in OHDSI standard vocabularies with their sources
 
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
