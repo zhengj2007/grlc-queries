@@ -1,0 +1,15 @@
+#+ endpoint: https://sparql.hegroup.org/sparql?format=text/html
+#+ summary: Find pertussis vaccines in OHDSI standard vocabularies with their sources
+
+PREFIX rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX oboInOwl: <http://www.geneontology.org/formats/oboInOwl#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+
+SELECT DISTINCT ?entity ?label ?date
+FROM <http://purl.obolibrary.org/obo/merged/UBERON>
+WHERE {
+  ?entity oboInOwl:inSubset <http://purl.obolibrary.org/obo/uberon/core#added_by_HRA> .
+  OPTIONAL { ?entity rdfs:label ?label . }
+  OPTIONAL { ?entity dcterms:date ?date . }
+}
+ORDER BY ?entity
