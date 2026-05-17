@@ -1,67 +1,80 @@
 #+ endpoint: https://sparql.hegroup.org/sparql?format=text/csv
 #+ summary: Find Brucella vaccines with definition sources
 
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX obo: <http://purl.obolibrary.org/obo/>
 
-SELECT ?vaccine_id 
-       ?vaccine_label
-       (GROUP_CONCAT(DISTINCT ?disease; separator="|") AS ?diseases)
-       (GROUP_CONCAT(DISTINCT ?pathogen; separator="|") AS ?pathogens)
-       (GROUP_CONCAT(DISTINCT ?recipient; separator="|") AS ?recipients)
-       (GROUP_CONCAT(DISTINCT ?animal_model; separator="|") AS ?animal_models)
-       (GROUP_CONCAT(DISTINCT ?role; separator="|") AS ?roles)
-       (GROUP_CONCAT(DISTINCT ?def_source; separator="|") AS ?def_sources)
+SELECT 
+    ?vaccine_id 
+    ?vaccine_label
+    (GROUP_CONCAT(DISTINCT ?disease_text; separator="|") AS ?diseases)
+    (GROUP_CONCAT(DISTINCT ?pathogen_text; separator="|") AS ?pathogens)
+    (GROUP_CONCAT(DISTINCT ?recipient_text; separator="|") AS ?recipients)
+    (GROUP_CONCAT(DISTINCT ?animal_model_text; separator="|") AS ?animal_models)
+    (GROUP_CONCAT(DISTINCT ?role_text; separator="|") AS ?roles)
+    (GROUP_CONCAT(DISTINCT ?def_source; separator="|") AS ?def_sources)
 FROM <http://purl.obolibrary.org/obo/merged/VO>
 WHERE {
-    # Hierarchy: Brucella vaccine and its subclasses
+    # 1. Target the Brucella vaccine hierarchy
     ?vaccine_iri rdfs:subClassOf* obo:VO_0000025 .
-    
-    # Retrieve label and cast to string
-    ?vaccine_iri rdfs:label ?label_val .
-    BIND(STR(?label_val) AS ?vaccine_label)
+    ?vaccine_iri rdfs:label ?vaccine_label .
     
     # Format the ID (VO_0000723 -> VO:0000723)
-    BIND(REPLACE(STRAFTER(STR(?vaccine_iri), "obo/"), "_", ":") AS ?vaccine_id)
+    BIND(REPLACE(STR(?vaccine_iri), "^.*VO_", "VO:") AS ?vaccine_id)
 
-    # Object Properties
-
-    # Mapping 'immunizes against disease' (VO_0001011)
+    # 2. Disease: VO_0001011
     OPTIONAL {
         ?vaccine_iri rdfs:subClassOf [
             owl:onProperty obo:VO_0001011 ;
-            owl:someValuesFrom ?disease
+            owl:someValuesFrom ?disease_iri
         ] .
+        OPTIONAL { ?disease_iri rdfs:label ?disease_lbl }
+        BIND(COALESCE(STR(?disease_lbl), STR(?disease_iri)) AS ?disease_text)
     }
-    # Mapping 'immunizes against pathogen' (VO_0003355)
+    
+    # 3. Pathogen: VO_0003355
     OPTIONAL {
         ?vaccine_iri rdfs:subClassOf [
             owl:onProperty obo:VO_0003355 ;
-            owl:someValuesFrom ?pathogen
+            owl:someValuesFrom ?pathogen_iri
         ] .
+        OPTIONAL { ?pathogen_iri rdfs:label ?pathogen_lbl }
+        BIND(COALESCE(STR(?pathogen_lbl), STR(?pathogen_iri)) AS ?pathogen_text)
     }
-    # Mapping 'test in lab animal model' (VO_0003390)
+    
+    # 4. Animal Model: VO_0003390
     OPTIONAL {
         ?vaccine_iri rdfs:subClassOf [
             owl:onProperty obo:VO_0003390 ;
-            owl:someValuesFrom ?animal_model
+            owl:someValuesFrom ?animal_iri
         ] .
+        OPTIONAL { ?animal_iri rdfs:label ?animal_lbl }
+        BIND(COALESCE(STR(?animal_lbl), STR(?animal_iri)) AS ?animal_model_text)
     }
-    # Mapping 'has role' (RO_0000087)
+
+    # 5. Role: RO_0000087
     OPTIONAL {
         ?vaccine_iri rdfs:subClassOf [
             owl:onProperty obo:RO_0000087 ;
-            owl:someValuesFrom ?role
+            owl:someValuesFrom ?role_iri
         ] .
+        OPTIONAL { ?role_iri rdfs:label ?role_lbl }
+        BIND(COALESCE(STR(?role_lbl), STR(?role_iri)) AS ?role_text)
     }
-    # Mapping 'immunizes recipient' (VO_0001243)
+
+    # 6. Recipient: VO_0001243
     OPTIONAL {
         ?vaccine_iri rdfs:subClassOf [
             owl:onProperty obo:VO_0001243 ;
-            owl:someValuesFrom ?recipient
+            owl:someValuesFrom ?recipient_iri
         ] .
+        OPTIONAL { ?recipient_iri rdfs:label ?recipient_lbl }
+        BIND(COALESCE(STR(?recipient_lbl), STR(?recipient_iri)) AS ?recipient_text)
     }
 
+    # Definition Source
     OPTIONAL { ?vaccine_iri obo:IAO_0000119 ?def_source . }
 }
 GROUP BY ?vaccine_id ?vaccine_label
