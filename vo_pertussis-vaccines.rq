@@ -1,4 +1,4 @@
-#+ endpoint: https://sparql.hegroup.org/sparql?format=text/html
+#+ endpoint: https://sparql.hegroup.org/sparql?format=text/csv
 #+ summary: Find pertussis vaccines in OHDSI standard vocabularies with their sources
 
 prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -18,3 +18,5 @@ WHERE {
     	OPTIONAL { ?entity obo:VO_0010152 ?RxNorm_Extension_ID . }
 }
 ORDER BY ASC(?OMOP_Concept_ID)
+
+infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	UBERON:1200110
