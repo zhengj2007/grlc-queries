@@ -18,5 +18,3 @@ WHERE {
     	OPTIONAL { ?entity obo:VO_0010152 ?RxNorm_Extension_ID . }
 }
 ORDER BY ASC(?OMOP_Concept_ID)
-
-infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	infraglenoid tubercle of scapula	UBERON:1200110
